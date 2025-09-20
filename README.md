@@ -5,4 +5,8 @@ We offer a free keyless executor for everyone to use, which does not get detecte
 This is the ORIGINAL Github page, no other page is real and should be believed.
 Made by the Instance.new team.
 
+Requirements;
+Microsoft Visual Studio
+https://visualstudio.microsoft.com/
+
 ![Logo](/execui.png/)
