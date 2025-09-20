@@ -1,3 +1,4 @@
+// do not copy our code or we will touch you.
 #include "Injector.h"
 #include <Windows.h>
 #include <iostream>
