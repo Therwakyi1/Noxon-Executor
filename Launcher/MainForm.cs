@@ -201,7 +201,6 @@ namespace NoxonExecutor
             }
         }
         
-        // Rest of the methods remain the same as previous version
         private void BtnExecute_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Execution would happen here if we were injected.");
@@ -260,10 +259,18 @@ namespace NoxonExecutor
         private void LocalFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Lua Files|*.lua|Text Files|*.txt|All Files|*.*";
+            // EDITED: Now supports .lua, .luau, and .txt files
+            dialog.Filter = "Lua Files|*.lua|Luau Files|*.luau|Text Files|*.txt|All Files|*.*";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                scriptBox.Text = File.ReadAllText(dialog.FileName);
+                try
+                {
+                    scriptBox.Text = File.ReadAllText(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Couldn't read that file, dickhead: {ex.Message}");
+                }
             }
         }
         
@@ -276,5 +283,23 @@ namespace NoxonExecutor
         // Windows API functions for bringing windows to foreground
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
+        
+        // Helper method to load file with extension detection
+        private void LoadFileWithDetection(string filePath)
+        {
+            try
+            {
+                string content = File.ReadAllText(filePath);
+                scriptBox.Text = content;
+                
+                // Auto-detect file type for syntax (though we use Lua highlighting for all)
+                string extension = Path.GetExtension(filePath).ToLower();
+                // You could add different highlighting schemes based on file type here
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading file: {ex.Message}");
+            }
+        }
     }
 }
