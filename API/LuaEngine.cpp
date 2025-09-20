@@ -4,7 +4,6 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include <detours.h>
 #include <Psapi.h>
 
 // Lua includes
@@ -132,55 +131,15 @@ void LuaEngine::DestroyLuaState() {
 bool LuaEngine::HookRobloxLua() {
     if (m_hooked) return true;
 
-    std::cout << "[LuaEngine] Hooking Roblox Lua functions..." << std::endl;
-
-    // Hook Roblox's print function
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    
-    m_originalPrint = (void*)m_robloxPrintAddr;
-    DetourAttach(&m_originalPrint, HookedPrint);
-    
-    m_originalLoadString = (void*)m_robloxLoadStringAddr;
-    DetourAttach(&m_originalLoadString, HookedLoadString);
-    
-    m_originalRequire = (void*)m_robloxRequireAddr;
-    DetourAttach(&m_originalRequire, HookedRequire);
-    
-    LONG result = DetourTransactionCommit();
-    
-    if (result == NO_ERROR) {
-        m_hooked = true;
-        std::cout << "[LuaEngine] Hooks installed successfully!" << std::endl;
-        return true;
-    } else {
-        std::cout << "[LuaEngine] Failed to install hooks: " << result << std::endl;
-        return false;
-    }
+    std::cout << "[LuaEngine] Hooking not available - Detours not installed" << std::endl;
+    return false; // Detours not available
 }
 
 bool LuaEngine::UnhookRobloxLua() {
     if (!m_hooked) return true;
 
-    std::cout << "[LuaEngine] Unhooking Roblox Lua functions..." << std::endl;
-
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    
-    if (m_originalPrint) DetourDetach(&m_originalPrint, HookedPrint);
-    if (m_originalLoadString) DetourDetach(&m_originalLoadString, HookedLoadString);
-    if (m_originalRequire) DetourDetach(&m_originalRequire, HookedRequire);
-    
-    LONG result = DetourTransactionCommit();
-    
-    if (result == NO_ERROR) {
-        m_hooked = false;
-        std::cout << "[LuaEngine] Hooks removed successfully!" << std::endl;
-        return true;
-    } else {
-        std::cout << "[LuaEngine] Failed to remove hooks: " << result << std::endl;
-        return false;
-    }
+    std::cout << "[LuaEngine] No hooks to remove - Detours not installed" << std::endl;
+    return true;
 }
 
 void LuaEngine::Execute(const std::string& code) {
@@ -276,34 +235,19 @@ size_t LuaEngine::GetQueueSize() const {
     return m_executionQueue.size();
 }
 
-// Hooked functions
+// Hooked functions (stubs - won't work without Detours)
 int LuaEngine::HookedPrint(lua_State* L) {
-    int n = lua_gettop(L);
-    std::string output;
-    
-    for (int i = 1; i <= n; i++) {
-        if (lua_isstring(L, i)) {
-            output += lua_tostring(L, i);
-        }
-        if (i < n) output += "\t";
-    }
-    
-    std::cout << "[Roblox Print] " << output << std::endl;
-    
-    // Call original function if needed
-    // typedef int(*OriginalPrint)(lua_State*);
-    // return ((OriginalPrint)g_luaEngine->m_originalPrint)(L);
-    
+    std::cout << "[LuaEngine] Hooks not available - Detours not installed" << std::endl;
     return 0;
 }
 
 int LuaEngine::HookedLoadString(lua_State* L) {
-    // Intercept loadstring calls for monitoring
+    std::cout << "[LuaEngine] Hooks not available - Detours not installed" << std::endl;
     return 0;
 }
 
 int LuaEngine::HookedRequire(lua_State* L) {
-    // Intercept require calls for module hijacking
+    std::cout << "[LuaEngine] Hooks not available - Detours not installed" << std::endl;
     return 0;
 }
 
