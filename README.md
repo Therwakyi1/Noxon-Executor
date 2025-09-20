@@ -9,7 +9,7 @@ Requirements;
 Microsoft Visual Studio 2019/2022 C++ Supported
 https://visualstudio.microsoft.com/
 
-[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download")](github.com/Therwakyi1/Noxon-Executor/)
+[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download")](https://github.com/Therwakyi1/Noxon-Executor)
 
 
 ![Logo](/execui.png/)
