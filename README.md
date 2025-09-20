@@ -9,6 +9,9 @@ Requirements;
 Microsoft Visual Studio 2019/2022 C++ Supported
 https://visualstudio.microsoft.com/
 
+Microsoft Store Roblox aplication
+https://apps.microsoft.com/detail/9nblgggzm6wm?hl=en-US&gl=NG
+
 [![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download")](https://github.com/Therwakyi1/Noxon-Executor)
 
 
