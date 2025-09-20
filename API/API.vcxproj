@@ -54,22 +54,61 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  
+  <!-- LUA HEADER FILES -->
+  <ItemGroup>
+    <ClInclude Include="..\lib\lua\lua.h" />
+    <ClInclude Include="..\lib\lua\lauxlib.h" />
+    <ClInclude Include="..\lib\lua\lualib.h" />
+    <ClInclude Include="..\lib\lua\luaconf.h" />
+  </ItemGroup>
+  
+  <!-- LUA SOURCE FILES -->
+  <ItemGroup>
+    <ClCompile Include="..\lib\lua\lapi.c" />
+    <ClCompile Include="..\lib\lua\lcode.c" />
+    <ClCompile Include="..\lib\lua\lctype.c" />
+    <ClCompile Include="..\lib\lua\ldebug.c" />
+    <ClCompile Include="..\lib\lua\ldo.c" />
+    <ClCompile Include="..\lib\lua\ldump.c" />
+    <ClCompile Include="..\lib\lua\lfunc.c" />
+    <ClCompile Include="..\lib\lua\lgc.c" />
+    <ClCompile Include="..\lib\lua\llex.c" />
+    <ClCompile Include="..\lib\lua\lmem.c" />
+    <ClCompile Include="..\lib\lua\lobject.c" />
+    <ClCompile Include="..\lib\lua\lopcodes.c" />
+    <ClCompile Include="..\lib\lua\lparser.c" />
+    <ClCompile Include="..\lib\lua\lstate.c" />
+    <ClCompile Include="..\lib\lua\lstring.c" />
+    <ClCompile Include="..\lib\lua\ltable.c" />
+    <ClCompile Include="..\lib\lua\ltm.c" />
+    <ClCompile Include="..\lib\lua\lundump.c" />
+    <ClCompile Include="..\lib\lua\lvm.c" />
+    <ClCompile Include="..\lib\lua\lzio.c" />
+  </ItemGroup>
+  
+  <!-- API SOURCE FILES -->
+  <ItemGroup>
+    <ClCompile Include="LuaEngine.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Stealth.cpp" />
+  </ItemGroup>
+  
+  <!-- API HEADER FILES -->
   <ItemGroup>
     <ClInclude Include="LuaEngine.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="LuaEngine.cpp" />
-    <ClCompile Include="Stealth.cpp" />
-  </ItemGroup>
+  
   <ItemGroup>
     <None Include="ReadMe.txt" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Injector\Injector.vcxproj">
       <Project>{B2C3D4E5-F678-9012-ABCD-EF1234567890}</Project>
     </ProjectReference>
   </ItemGroup>
+  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -77,15 +116,16 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lib\lua;..\lib\detours;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\detours;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -95,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lib\lua;..\lib\detours;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -103,9 +143,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\detours;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -113,15 +154,16 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lib\lua;..\lib\detours;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\detours;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -131,7 +173,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lib\lua;..\lib\detours;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,9 +181,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\detours;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
 </Project>
