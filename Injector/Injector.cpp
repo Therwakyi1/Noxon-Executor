@@ -3,6 +3,7 @@
 #include <TlHelp32.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 // Global variables for error tracking
 std::string g_lastError;
@@ -71,11 +72,129 @@ bool InjectLoadLibrary(int processId, const char* dllPath) {
 
 // Manual mapping injection (more advanced, harder to detect)
 bool ManualMapInject(int processId, const char* dllPath) {
-    // This is where you'd implement manual DLL mapping
-    // It's complex as fuck and requires parsing PE headers
-    // For now, we'll just use LoadLibrary
-    SetLastError("Manual mapping not implemented yet");
+    // Read the DLL file into memory
+    HANDLE hFile = CreateFileA(dllPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        SetLastError("Failed to open DLL file: " + std::to_string(GetLastError()));
+        return false;
+    }
+
+    DWORD fileSize = GetFileSize(hFile, NULL);
+    if (fileSize == INVALID_FILE_SIZE) {
+        SetLastError("Failed to get file size: " + std::to_string(GetLastError()));
+        CloseHandle(hFile);
+        return false;
+    }
+
+    BYTE* pDllData = new BYTE[fileSize];
+    DWORD bytesRead;
+    if (!ReadFile(hFile, pDllData, fileSize, &bytesRead, NULL)) {
+        SetLastError("Failed to read DLL file: " + std::to_string(GetLastError()));
+        delete[] pDllData;
+        CloseHandle(hFile);
+        return false;
+    }
+    CloseHandle(hFile);
+
+    // Basic manual mapping implementation
+    // This is a simplified version - real manual mapping is much more complex
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) {
+        SetLastError("Failed to open process: " + std::to_string(GetLastError()));
+        delete[] pDllData;
+        return false;
+    }
+
+    // TODO: Parse PE headers, allocate memory, copy sections, apply relocations, etc.
+    // This is where the actual manual mapping would happen
+
+    delete[] pDllData;
+    CloseHandle(hProcess);
+
+    SetLastError("Manual mapping not fully implemented yet");
     return false;
+}
+
+// Thread hijack injection
+bool ThreadHijackInject(int processId, const char* dllPath) {
+    // Find a thread to hijack
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) {
+        SetLastError("Failed to create thread snapshot: " + std::to_string(GetLastError()));
+        return false;
+    }
+
+    THREADENTRY32 te;
+    te.dwSize = sizeof(THREADENTRY32);
+
+    DWORD targetThreadId = 0;
+    if (Thread32First(hSnapshot, &te)) {
+        do {
+            if (te.th32OwnerProcessID == processId) {
+                targetThreadId = te.th32ThreadID;
+                break;
+            }
+        } while (Thread32Next(hSnapshot, &te));
+    }
+    CloseHandle(hSnapshot);
+
+    if (targetThreadId == 0) {
+        SetLastError("No threads found in target process");
+        return false;
+    }
+
+    // TODO: Implement thread hijacking
+    // This involves suspending the thread, modifying its context to execute your code,
+    // then restoring it
+
+    SetLastError("Thread hijack injection not implemented yet");
+    return false;
+}
+
+// Check if Hyperion is running
+bool IsHyperionRunning() {
+    // Check for Hyperion driver presence
+    HANDLE hDevice = CreateFileA("\\\\.\\HyperionDriver", 
+                                GENERIC_READ, 
+                                FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                                NULL, 
+                                OPEN_EXISTING, 
+                                FILE_ATTRIBUTE_NORMAL, 
+                                NULL);
+    
+    if (hDevice != INVALID_HANDLE_VALUE) {
+        CloseHandle(hDevice);
+        return true;
+    }
+    
+    // Check for Roblox processes (indicating Hyperion might be active)
+    const char* robloxProcesses[] = {
+        "RobloxPlayerBeta.exe",
+        "Windows10Universal.exe",
+        "RobloxWebHelper.exe"
+    };
+    
+    for (const char* procName : robloxProcesses) {
+        if (FindProcessByName(procName) != -1) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Hyperion-aware injection
+bool HyperionAwareInject(int processId, const char* dllPath) {
+    // 1. Check if Hyperion is present
+    if (IsHyperionRunning()) {
+        std::cout << "[INJECTOR] Hyperion detected - using manual mapping\n";
+        return ManualMapInject(processId, dllPath);
+    }
+    
+    // 2. Fall back to normal injection
+    std::cout << "[INJECTOR] Hyperion not detected - using LoadLibrary\n";
+    return InjectLoadLibrary(processId, dllPath);
 }
 
 // Main injection function
@@ -93,8 +212,13 @@ extern "C" INJECTOR_API bool STDCALL Inject(int processId, const char* dllPath) 
     }
     CloseHandle(hProcess);
 
-    // Try to inject using LoadLibrary method
-    return InjectLoadLibrary(processId, dllPath);
+    // Use Hyperion-aware injection
+    return HyperionAwareInject(processId, dllPath);
+}
+
+// Stealth injection function
+extern "C" INJECTOR_API bool STDCALL InjectStealth(int processId, const char* dllPath) {
+    return HyperionAwareInject(processId, dllPath);
 }
 
 // Advanced injection with configuration
@@ -105,8 +229,7 @@ extern "C" INJECTOR_API bool STDCALL AdvancedInject(int processId, const char* d
         case INJECT_METHOD_MANUALMAP:
             return ManualMapInject(processId, dllPath);
         case INJECT_METHOD_THREADHIJACK:
-            SetLastError("Thread hijack injection not implemented");
-            return false;
+            return ThreadHijackInject(processId, dllPath);
         default:
             SetLastError("Unknown injection method");
             return false;
@@ -121,8 +244,12 @@ extern "C" INJECTOR_API const char* STDCALL GetLastErrorMsg() {
 extern "C" INJECTOR_API bool STDCALL IsProcessRunning(int processId) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, processId);
     if (hProcess) {
+        DWORD exitCode;
+        if (GetExitCodeProcess(hProcess, &exitCode) && exitCode == STILL_ACTIVE) {
+            CloseHandle(hProcess);
+            return true;
+        }
         CloseHandle(hProcess);
-        return true;
     }
     return false;
 }
@@ -150,4 +277,59 @@ extern "C" INJECTOR_API int STDCALL FindProcessByName(const char* processName) {
 
     CloseHandle(hSnapshot);
     return -1;
+}
+
+// Get process name from ID
+extern "C" INJECTOR_API bool STDCALL GetProcessName(int processId, char* buffer, int bufferSize) {
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    if (!Process32First(hSnapshot, &pe)) {
+        CloseHandle(hSnapshot);
+        return false;
+    }
+
+    do {
+        if (pe.th32ProcessID == processId) {
+            strncpy_s(buffer, bufferSize, pe.szExeFile, _TRUNCATE);
+            CloseHandle(hSnapshot);
+            return true;
+        }
+    } while (Process32Next(hSnapshot, &pe));
+
+    CloseHandle(hSnapshot);
+    return false;
+}
+
+// Get list of all running processes
+extern "C" INJECTOR_API int STDCALL GetProcessList(int* processIds, char** processNames, int maxCount) {
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    if (!Process32First(hSnapshot, &pe)) {
+        CloseHandle(hSnapshot);
+        return 0;
+    }
+
+    int count = 0;
+    do {
+        if (count < maxCount) {
+            processIds[count] = pe.th32ProcessID;
+            processNames[count] = _strdup(pe.szExeFile); // Caller must free this memory
+            count++;
+        }
+    } while (Process32Next(hSnapshot, &pe) && count < maxCount);
+
+    CloseHandle(hSnapshot);
+    return count;
 }
