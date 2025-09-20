@@ -17,9 +17,8 @@ namespace NoxonExecutor
         private SyntaxRichTextBox scriptBox;
         private Button btnExecute, btnClear, btnOpen, btnInject, btnConsole;
         private ContextMenuStrip openMenuStrip;
-        private Panel topPanel;
 
-        private readonly Color backgroundColor = Color.FromArgb(20, 20, 20);
+        private readonly Color backgroundColor = Color.FromArgb(25, 25, 25);
         private readonly Color textColor = Color.White;
         private readonly Color keywordColor = Color.FromArgb(255, 128, 0);
         private readonly Color stringColor = Color.Yellow;
@@ -27,102 +26,75 @@ namespace NoxonExecutor
         private readonly Color functionColor = Color.Red;
         private readonly Color numberColor = Color.FromArgb(200, 200, 255);
 
-        private readonly string[] luaKeywords =
-        {
-            "and", "break", "do", "else", "elseif", "end", "false", "for", "function",
-            "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
-            "true", "until", "while"
+        private readonly string[] luaKeywords = {
+            "and","break","do","else","elseif","end","false","for","function",
+            "if","in","local","nil","not","or","repeat","return","then",
+            "true","until","while"
         };
 
-        private readonly string[] luaFunctions =
-        {
-            "print", "require", "loadstring", "load", "assert", "error", "pcall",
-            "xpcall", "getfenv", "setfenv", "rawget", "rawset", "rawequal",
-            "getmetatable", "setmetatable", "next", "pairs", "ipairs", "select",
-            "type", "tonumber", "tostring", "unpack", "table", "string", "math",
-            "coroutine", "os", "io", "debug"
+        private readonly string[] luaFunctions = {
+            "print","require","loadstring","load","assert","error","pcall",
+            "xpcall","getfenv","setfenv","rawget","rawset","rawequal",
+            "getmetatable","setmetatable","next","pairs","ipairs","select",
+            "type","tonumber","tostring","unpack","table","string","math",
+            "coroutine","os","io","debug"
         };
 
         public MainForm()
         {
             InitializeComponent();
             this.Text = "Noxon Executor v1.0";
+            this.Icon = new Icon(Path.Combine(Application.StartupPath, "logo.ico"));
             this.BackColor = Color.FromArgb(30, 30, 30);
             this.ForeColor = Color.White;
-            this.Size = new Size(720, 520);
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.Size = new Size(750, 520);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterScreen;
-
-            try
-            {
-                this.Icon = new Icon("noxonlogo.ico"); // requires PNG converted to ICO
-            }
-            catch { }
         }
 
         private void InitializeComponent()
         {
-            // --- Top Panel for Buttons ---
-            topPanel = new Panel();
-            topPanel.Dock = DockStyle.Top;
-            topPanel.Height = 40;
-            topPanel.BackColor = Color.FromArgb(40, 40, 40);
-            this.Controls.Add(topPanel);
-
-            // Execute
-            btnExecute = CreateStyledButton("Execute", Color.Red, new Point(10, 5));
-            btnExecute.Click += BtnExecute_Click;
-            topPanel.Controls.Add(btnExecute);
-
-            // Clear
-            btnClear = CreateStyledButton("Clear", Color.FromArgb(64, 64, 64), new Point(95, 5));
-            btnClear.Click += BtnClear_Click;
-            topPanel.Controls.Add(btnClear);
-
-            // Open
-            btnOpen = CreateStyledButton("Open", Color.FromArgb(64, 64, 64), new Point(180, 5));
-            topPanel.Controls.Add(btnOpen);
-
-            // Inject
-            btnInject = CreateStyledButton("Inject", Color.Red, new Point(265, 5));
-            btnInject.Click += BtnInject_Click;
-            topPanel.Controls.Add(btnInject);
-
-            // Console
-            btnConsole = CreateStyledButton("Console", Color.FromArgb(64, 64, 64), new Point(350, 5));
-            btnConsole.Click += BtnConsole_Click;
-            topPanel.Controls.Add(btnConsole);
-
-            // --- Script Editor ---
+            // Script Box
             scriptBox = new SyntaxRichTextBox();
-            scriptBox.Dock = DockStyle.Fill;
+            scriptBox.Location = new Point(12, 50);
+            scriptBox.Size = new Size(710, 400);
             scriptBox.BackColor = backgroundColor;
             scriptBox.ForeColor = textColor;
-            scriptBox.Font = new Font("Consolas", 10);
-            scriptBox.BorderStyle = BorderStyle.None;
+            scriptBox.Font = new Font("Consolas", 11, FontStyle.Regular);
+            scriptBox.BorderStyle = BorderStyle.FixedSingle;
             scriptBox.TextChanged += ScriptBox_TextChanged;
             this.Controls.Add(scriptBox);
 
-            // --- Context Menu ---
+            // Button style helper
+            Button CreateButton(string text, int x, Color color, EventHandler onClick)
+            {
+                var btn = new Button();
+                btn.Text = text;
+                btn.Location = new Point(x, 10);
+                btn.Size = new Size(90, 30);
+                btn.BackColor = color;
+                btn.ForeColor = Color.White;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderSize = 0;
+                btn.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                if (onClick != null) btn.Click += onClick;
+                this.Controls.Add(btn);
+                return btn;
+            }
+
+            btnExecute = CreateButton("Execute", 12, Color.FromArgb(200, 50, 50), BtnExecute_Click);
+            btnClear   = CreateButton("Clear", 114, Color.FromArgb(60, 60, 60), BtnClear_Click);
+            btnOpen    = CreateButton("Open", 216, Color.FromArgb(60, 60, 60), null);
+            btnInject  = CreateButton("Inject", 318, Color.FromArgb(200, 50, 50), BtnInject_Click);
+            btnConsole = CreateButton("Console", 420, Color.FromArgb(60, 60, 60), BtnConsole_Click);
+
+            // Context menu for Open
             openMenuStrip = new ContextMenuStrip();
             var localItem = openMenuStrip.Items.Add("Local File");
             var githubItem = openMenuStrip.Items.Add("From GitHub");
             localItem.Click += LocalFileToolStripMenuItem_Click;
             githubItem.Click += GitHubToolStripMenuItem_Click;
             btnOpen.Click += (s, e) => openMenuStrip.Show(btnOpen, new Point(0, btnOpen.Height));
-        }
-
-        private Button CreateStyledButton(string text, Color backColor, Point location)
-        {
-            return new Button
-            {
-                Text = text,
-                Location = location,
-                Size = new Size(75, 30),
-                BackColor = backColor,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
         }
 
         private void ScriptBox_TextChanged(object sender, EventArgs e)
@@ -142,7 +114,6 @@ namespace NoxonExecutor
                 Color currentColor = this.SelectionColor;
 
                 this.SuspendLayout();
-
                 this.SelectAll();
                 this.SelectionColor = Color.White;
                 this.DeselectAll();
@@ -162,7 +133,6 @@ namespace NoxonExecutor
                 this.SelectionLength = currentLength;
                 this.SelectionColor = currentColor;
                 this.ScrollToCaret();
-
                 this.ResumeLayout();
             }
 
@@ -194,12 +164,11 @@ namespace NoxonExecutor
                 var processes = Process.GetProcessesByName("RobloxPlayerBeta");
                 if (processes.Length == 0)
                 {
-                    MessageBox.Show("Open Roblox first.");
+                    MessageBox.Show("Open Roblox first, dumbass.");
                     return;
                 }
 
                 string dllPath = Path.Combine(Application.StartupPath, "API.dll");
-
                 if (!File.Exists(dllPath))
                 {
                     MessageBox.Show($"API.dll not found at: {dllPath}");
@@ -207,7 +176,7 @@ namespace NoxonExecutor
                 }
 
                 bool success = Inject(processes[0].Id, dllPath);
-                MessageBox.Show(success ? "Injected successfully!" : "Injection failed.");
+                MessageBox.Show(success ? "Injected successfully!" : "Injection failed, you fucked something up.");
             }
             catch (Exception ex)
             {
@@ -225,7 +194,7 @@ namespace NoxonExecutor
             }
             else
             {
-                MessageBox.Show("Open Roblox first.");
+                MessageBox.Show("Open Roblox first, you idiot.");
             }
         }
 
@@ -241,7 +210,7 @@ namespace NoxonExecutor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Couldn't read file: {ex.Message}");
+                    MessageBox.Show($"Couldn't read that file: {ex.Message}");
                 }
             }
         }
