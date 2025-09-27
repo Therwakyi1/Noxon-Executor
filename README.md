@@ -11,7 +11,7 @@ Microsoft Visual Studio 2019/2022 C++ Supported\
 https://visualstudio.microsoft.com/
 
 Microsoft Store Roblox aplication [ OPTIONAL ]\
-https://apps.microsoft.com/detail/9nblgggzm6wm?hl=en-US&gl=NG  \
+https://apps.microsoft.com/detail/9nblgggzm6wm?hl=en-US&gl=NG\
 
 
 Download Noxon:\
