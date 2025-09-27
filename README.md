@@ -1,5 +1,4 @@
 # Noxon Executor
-
 ![Logo](Resources/banner.png)
 
 Noxon is an powerful yet easy to use executor based off RC7 and Synapse(X)!\
